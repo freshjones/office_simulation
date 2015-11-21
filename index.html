@@ -3,12 +3,26 @@
 <head>
     <title ng-bind="'My App &mdash; ' + title">My App</title>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
+   
     <script type="text/javascript" src="js/app.js"></script>
 </head>
 <body ng-controller="MainCtrl">       
-    <div>{{backlog}} items in backlog</div>
+    
     <div>
     	<button ng-click="runSim()" ng-show="showStartBtn">Run Simulation</button>
+    </div>
+
+    <div class="block">
+    	<h1>Backlog</h1>
+    	{{backlogCount}} items in Backlog
+    </div>
+    <div class="block" ng-controller="DesignController">
+    	<h1>Design</h1>
+    	{{designCount}} items in Design
+    </div>
+    <div class="block" ng-controller="CompleteController">
+    	<h1>Completed</h1>
+    	{{completedCount}} items completed {{completedTotals}} earned
     </div>
 </body>
 </html>
