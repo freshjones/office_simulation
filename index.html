@@ -13,12 +13,19 @@
     </div>
 
     <div class="block">
+        <h1>Days</h1>
+        Total Days Available: {{period.days}} days<br/>
+        Total Hours Available: {{period.hours}} hours<br/>
+        Current day: {{period.currentDay}} Current Hour: {{period.currentHour}}
+    </div>
+
+    <div class="block">
     	<h1>Backlog</h1>
-    	{{backlogCount}} items in Backlog
+    	{{backlog.jobCount}} items in Backlog
     </div>
     <div class="block" ng-controller="DesignController">
     	<h1>Design</h1>
-    	{{designCount}} items in Design
+    	{{design.jobCount}} items in Design
     </div>
     <div class="block" ng-controller="CompleteController">
     	<h1>Completed</h1>
