@@ -65,7 +65,7 @@
     {
       var workstations, designHours,developmentHours;
 
-      workstations = [];
+      workstations = {};
 
       designHours = 1;
 
@@ -77,8 +77,8 @@
 
       developmentHours  = Math.floor(hours - designHours);
      
-      workstations[0] = {'name':'design','hours':designHours}
-      workstations[1] = {'name':'development','hours':developmentHours}
+      workstations.design = {'hoursEstimated':designHours, 'hoursWorked':0, 'hours':designHours,'log':[] }
+      workstations.development = {'hoursEstimated':developmentHours, 'hoursWorked':0, 'hours':developmentHours, 'log':[] }
 
       return workstations
 
@@ -194,6 +194,7 @@
         period.hourSpeed           = hourSpeed;
         period.hourCounter         = 0;
         period.hourTotalCount      = 0;
+        period.workingHours        = [8,9,10,11,12,13,14,15,16];
 
         var numJobs                = setNumJobs(numDays);
         var jobdata                = buildJobs(numJobs);

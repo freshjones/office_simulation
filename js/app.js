@@ -7,7 +7,7 @@
     .controller('MainCtrl', function($rootScope, $scope, $interval, DaysService, BacklogService, DesignService)
     {
 
-      var workingHours = [8,9,10,11,12,13,14,15,16];
+      
       var periodInterval;
       var backlogInterval;
 
@@ -129,7 +129,6 @@
                       //console.log('yay we are releasing a job at hour ' +  $scope.period.hourTotalCount);
                       var designRelease = $scope.backlog.jobs[index];
 
-                     
                       //add the job to the design wip
                       $scope.design.jobs.push(designRelease);
                       $scope.design.jobCount = $scope.design.jobs.length;
@@ -138,28 +137,60 @@
                       $scope.backlog.jobs.splice(index, 1);
                       $scope.backlog.jobCount = $scope.backlog.jobs.length;
 
-                      //console.log(designRelease);
-                      
-                      /*
-                      var handoffIncrement = newJob.handoff;
-                      newJob.handoff = $scope.period.hourTotalCount + handoffIncrement;
-                      
-                      $scope.backlog.jobs.push(newJob);
-                      $scope.backlog.jobCount = $scope.backlog.jobs.length;
-
-                      */
                   }
 
                 });
                
               }
 
-              /*
-              
-              */
-              //deliver jobs
-              // 
+              /* create the work day */
 
+              if( $scope.period.workingHours.indexOf( $scope.period.currentHour ) >= 0 )
+              {
+                  /* ensure we have jobs for designers to work on */
+                  if($scope.design.jobs.length)
+                  {
+                      var designers = $scope.design.workers;
+                      var i;
+
+                      for(i=0; i<designers; i++)
+                      {
+
+                        /* assuming we have enough jobs to go around */
+                        if( $scope.design.jobs[i] != undefined )
+                        {
+                          var designWork = $scope.design.jobs[i];
+
+                          var designWorkHours = designWork.stations.design.hours;
+                          var designWorkHoursWorked = designWork.stations.design.hoursWorked;
+
+                          if(designWorkHours <= 0)
+                          {
+                          
+                            console.log('job is done lets move it');
+
+                          } else {
+
+                            var hourObj = DesignService.doWork(designWorkHours, designWorkHoursWorked)
+
+                            //we update our job ticket
+                            $scope.design.jobs[i].stations.design.hours       = hourObj.hours;
+                            $scope.design.jobs[i].stations.design.hoursWorked = hourObj.hoursWorked;
+                            $scope.design.jobs[i].stations.design.log.push(hourObj.log);
+
+                            console.log( $scope.design.jobs[i] );
+
+                          }
+                           
+                        }
+
+                      }
+
+
+                  }
+                 
+
+              }
 
 
             }
@@ -225,11 +256,6 @@
 
       $rootScope.title = 'Cool'
 
-      
-
-      
-
-      
 
       function processDesignWip()
       {
@@ -403,7 +429,7 @@
     {
       var workstations, designHours,developmentHours;
 
-      workstations = [];
+      workstations = {};
 
       designHours = 1;
 
@@ -415,8 +441,8 @@
 
       developmentHours  = Math.floor(hours - designHours);
      
-      workstations[0] = {'name':'design','hours':designHours}
-      workstations[1] = {'name':'development','hours':developmentHours}
+      workstations.design = {'hoursEstimated':designHours, 'hoursWorked':0, 'hours':designHours,'log':[] }
+      workstations.development = {'hoursEstimated':developmentHours, 'hoursWorked':0, 'hours':developmentHours, 'log':[] }
 
       return workstations
 
@@ -532,6 +558,7 @@
         period.hourSpeed           = hourSpeed;
         period.hourCounter         = 0;
         period.hourTotalCount      = 0;
+        period.workingHours        = [8,9,10,11,12,13,14,15,16];
 
         var numJobs                = setNumJobs(numDays);
         var jobdata                = buildJobs(numJobs);
@@ -558,8 +585,9 @@
   function designService() 
   {
 
-    var speed = 5000;
+    var speed     = 5000;
     var avgSalary = 45000;
+    var resources = 2;
 
     return {
       
@@ -573,8 +601,21 @@
         design.speed          = speed;
         design.costperhour    = (avgSalary / 365) / 24;
         design.cost           = 0;
+        design.workers        = resources;
 
         return design;
+
+      },
+
+      doWork: function(hours, hoursWorked)
+      {
+        var work = {};
+
+        work.hours        = hours - 1;
+        work.hoursWorked  = hoursWorked + 1;
+        work.log = 'An hours worth of effort completed we now have ' + work.hours + ' hours left in design';
+
+        return work;
 
       }
 
