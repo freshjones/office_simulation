@@ -25,11 +25,13 @@
     </div>
     <div class="block" ng-controller="DesignController">
     	<h1>Design</h1>
-    	{{design.jobCount}} items in Design
+    	{{design.jobCount}} items in Design<br/>
+        Design Costs: ${{design.cost}}
     </div>
     <div class="block" ng-controller="CompleteController">
     	<h1>Completed</h1>
-    	{{completedCount}} items completed {{completedTotals}} earned
+    	{{completedCount}} items completed {{completedTotals}} earned<br/>
+        Potential Value: ${{backlog.potential}}
     </div>
 </body>
 </html>

@@ -17,6 +17,7 @@
       $scope.backlog      = BacklogService.setBacklog();
       $scope.design      = DesignService.setDesign();
 
+
       $scope.showStartBtn = true;
 
       /*
@@ -43,9 +44,10 @@
         $interval.cancel();
 
         //reset period
-        $scope.period     = DaysService.period(runFor);
-        $scope.backlog    = BacklogService.setBacklog();
-        $scope.design      = DesignService.setDesign();
+        $scope.period             = DaysService.period(runFor);
+        $scope.backlog            = BacklogService.setBacklog();
+        $scope.design             = DesignService.setDesign();
+        
 
         //console.log($scope.period.jobs)
         //start the inteval
@@ -70,13 +72,21 @@
               $scope.period.currentHour += 1;
               $scope.period.hourTotalCount += 1;
 
+              $scope.design.cost = Number( ($scope.design.cost + $scope.design.costperhour).toFixed(2) );
+
               if($scope.period.hourCounter == 24)
               {
+
                 $scope.period.hourCounter = 0;
                 //increment a day
                 $scope.period.days -= 1;
                 $scope.period.currentDay += 1;
                 $scope.period.currentHour = 1;
+
+                /* 
+                we could do calcs every 24 hours ??
+                */
+
               }
 
               if( $scope.period.releaseTimes[$scope.period.hourTotalCount] != undefined )
@@ -91,7 +101,7 @@
                 
                 $scope.backlog.jobs.push(newJob);
                 $scope.backlog.jobCount = $scope.backlog.jobs.length;
-
+                $scope.backlog.potential =  Number(($scope.backlog.potential + newJob.estimate).toFixed(2)) ;
                 //we have just recieved a job we can start on we now need to know
                 /*
                 1) When will we start the job (random based on job size)
@@ -119,6 +129,16 @@
                       //console.log('yay we are releasing a job at hour ' +  $scope.period.hourTotalCount);
                       var designRelease = $scope.backlog.jobs[index];
 
+                     
+                      //add the job to the design wip
+                      $scope.design.jobs.push(designRelease);
+                      $scope.design.jobCount = $scope.design.jobs.length;
+
+                      //remove it from the backlog
+                      $scope.backlog.jobs.splice(index, 1);
+                      $scope.backlog.jobCount = $scope.backlog.jobs.length;
+
+                      //console.log(designRelease);
                       
                       /*
                       var handoffIncrement = newJob.handoff;
@@ -292,9 +312,10 @@
 
         var backlog = {};
 
-        backlog.jobs      = [];
-        backlog.jobCount  = 0;
-        backlog.speed     = speed;
+        backlog.jobs        = [];
+        backlog.jobCount    = 0;
+        backlog.potential   = 0;
+        backlog.speed       = speed;
 
         return backlog;
 
@@ -538,6 +559,7 @@
   {
 
     var speed = 5000;
+    var avgSalary = 45000;
 
     return {
       
@@ -546,9 +568,11 @@
 
         var design = {};
 
-        design.jobs      = [];
-        design.jobCount  = 0;
-        design.speed     = speed;
+        design.jobs           = [];
+        design.jobCount       = 0;
+        design.speed          = speed;
+        design.costperhour    = (avgSalary / 365) / 24;
+        design.cost           = 0;
 
         return design;
 
