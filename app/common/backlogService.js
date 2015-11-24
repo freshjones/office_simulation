@@ -15,7 +15,6 @@
 
         backlog.jobs        = [];
         backlog.jobCount    = 0;
-        backlog.potential   = 0;
         backlog.speed       = speed;
 
         return backlog;

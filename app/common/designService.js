@@ -6,7 +6,7 @@
 
     var speed     = 5000;
     var avgSalary = 45000;
-    var resources = 2;
+    var resources = 1;
 
     return {
       
@@ -21,6 +21,7 @@
         design.costperhour    = (avgSalary / 365) / 24;
         design.cost           = 0;
         design.workers        = resources;
+        design.costs          = ((avgSalary / 365) * 30) * resources;
 
         return design;
 

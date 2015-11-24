@@ -4,6 +4,10 @@
   function daysService() {
 
     var hourSpeed = 10;
+    var rate = 125;
+
+    var invoice_terms = [0,14];
+    var net_terms = [30,60];
 
     function getJobHours(size)
     {
@@ -84,6 +88,24 @@
 
     }
 
+    function getInvoiceOn(hours)
+    {
+      
+      var time = randomIntFromInterval(invoice_terms[0],invoice_terms[1]);
+
+      return hours + (time * 24);
+
+    }
+
+
+    function getPaidOn(hours)
+    {
+      
+      var time = randomIntFromInterval(net_terms[0],net_terms[1]);
+
+      return hours + (time * 24);
+
+    }
 
     function getAJob()
     {
@@ -111,7 +133,7 @@
 
       job.size        = size;
       job.hours       = hours;
-      job.estimate    = hours * 125;
+      job.estimate    = hours * rate;
       job.handoff     = handoff;
       job.stations    = workstations;
 
@@ -193,6 +215,7 @@
         period.currentHour         = 1;
         period.hourSpeed           = hourSpeed;
         period.hourCounter         = 0;
+        period.monthCounter        = 0;
         period.hourTotalCount      = 0;
         period.workingHours        = [8,9,10,11,12,13,14,15,16];
 
@@ -204,6 +227,22 @@
 
         return period;
 
+      },
+
+      getCost : function(hours)
+      {
+
+        return Number((hours * rate).toFixed(2));
+      },
+
+      invoiceOn : function(hours)
+      {
+        return  getInvoiceOn(hours);
+      },
+
+      paidOn : function(hours)
+      {
+        return  getPaidOn(hours);
       }
 
     };

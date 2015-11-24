@@ -2,20 +2,48 @@
 
   'use strict';
 
-  var app = angular.module("SimApp", ['backlog','design','complete', 'common.days', 'common.backlog', 'common.design'])
+  var app = angular.module("SimApp", 
+    [
+      'backlog', 
+      'design', 
+      'production', 
+      'complete', 
+      'common.days', 
+      'common.backlog', 
+      'common.design', 
+      'common.production', 
+      'common.complete',
+      'common.invoice',
+      'common.cash'
+    ])
 
-    .controller('MainCtrl', function($rootScope, $scope, $interval, DaysService, BacklogService, DesignService)
+    .controller('MainCtrl', function(
+      $rootScope, 
+      $scope, 
+      $interval, 
+      DaysService, 
+      BacklogService, 
+      DesignService, 
+      CompleteService, 
+      ProductionService,
+      InvoiceService,
+      CashService
+      )
     {
 
       
       var periodInterval;
       var backlogInterval;
 
-      var runFor          = 7;
+      var runFor          = 365;
       
       $scope.period       = DaysService.period(runFor);
       $scope.backlog      = BacklogService.setBacklog();
-      $scope.design      = DesignService.setDesign();
+      $scope.design       = DesignService.setDesign();
+      $scope.production   = ProductionService.setProduction();
+      $scope.complete     = CompleteService.setComplete();
+      $scope.invoiced     = InvoiceService.setInvoice();
+      $scope.paid         = CashService.setCash();
 
 
       $scope.showStartBtn = true;
@@ -47,7 +75,10 @@
         $scope.period             = DaysService.period(runFor);
         $scope.backlog            = BacklogService.setBacklog();
         $scope.design             = DesignService.setDesign();
-        
+        $scope.production         = ProductionService.setProduction();
+        $scope.complete           = CompleteService.setComplete();
+        $scope.invoiced           = InvoiceService.setInvoice();
+        $scope.paid               = CashService.setCash();
 
         //console.log($scope.period.jobs)
         //start the inteval
@@ -68,11 +99,13 @@
             else 
             {
               $scope.period.hourCounter += 1;
+              $scope.period.monthCounter += 1;
               $scope.period.hours -= 1;
               $scope.period.currentHour += 1;
               $scope.period.hourTotalCount += 1;
 
-              $scope.design.cost = Number( ($scope.design.cost + $scope.design.costperhour).toFixed(2) );
+              //$scope.design.cost = Number( ($scope.design.cost + ( $scope.design.costperhour * $scope.design.workers ) ).toFixed(2) );
+              //$scope.production.cost = Number( ($scope.production.cost + ( $scope.production.costperhour * $scope.production.workers ) ).toFixed(2) ) ;
 
               if($scope.period.hourCounter == 24)
               {
@@ -83,10 +116,17 @@
                 $scope.period.currentDay += 1;
                 $scope.period.currentHour = 1;
 
+                
                 /* 
                 we could do calcs every 24 hours ??
                 */
 
+              }
+
+              if($scope.period.monthCounter == 720)
+              {
+                $scope.period.monthCounter = 0;
+                $scope.paid.moneyOut = Number( ($scope.paid.moneyOut + ($scope.production.costs + $scope.design.costs + $scope.invoiced.costs)).toFixed(0) );
               }
 
               if( $scope.period.releaseTimes[$scope.period.hourTotalCount] != undefined )
@@ -101,7 +141,9 @@
                 
                 $scope.backlog.jobs.push(newJob);
                 $scope.backlog.jobCount = $scope.backlog.jobs.length;
-                $scope.backlog.potential =  Number(($scope.backlog.potential + newJob.estimate).toFixed(2)) ;
+                $scope.complete.potentialValue +=  Number((newJob.estimate).toFixed(2)) ;
+
+                //console.log(newJob);
                 //we have just recieved a job we can start on we now need to know
                 /*
                 1) When will we start the job (random based on job size)
@@ -166,8 +208,15 @@
 
                           if(designWorkHours <= 0)
                           {
-                          
-                            console.log('job is done lets move it');
+                            
+                            $scope.production.jobs.push( designWork );
+                            $scope.production.jobCount = $scope.production.jobs.length;
+
+                            //$scope.complete.actualValue += DaysService.getCost( productionWork.stations.development.hoursEstimated );
+
+                            $scope.design.jobs.splice(i,1);
+                            $scope.design.jobCount = $scope.design.jobs.length;
+                            
 
                           } else {
 
@@ -178,7 +227,7 @@
                             $scope.design.jobs[i].stations.design.hoursWorked = hourObj.hoursWorked;
                             $scope.design.jobs[i].stations.design.log.push(hourObj.log);
 
-                            console.log( $scope.design.jobs[i] );
+                            //console.log( $scope.design.jobs[i] );
 
                           }
                            
@@ -188,7 +237,117 @@
 
 
                   }
-                 
+                  
+                  /* PRODUCTIOIN */
+                  if($scope.production.jobs.length)
+                  {
+                    var engineers = $scope.production.workers;
+                    var i;
+
+                    for(i=0; i<engineers; i++)
+                    {
+
+                      /* assuming we have enough jobs to go around */
+                      if( $scope.production.jobs[i] != undefined )
+                      {
+                        var productionWork = $scope.production.jobs[i];
+
+                        var productionWorkHours = productionWork.stations.development.hours;
+                        var productionWorkHoursWorked = productionWork.stations.development.hoursWorked;
+
+                        if(productionWorkHours <= 0)
+                        {
+                          
+                          productionWork.invoiceOn = DaysService.invoiceOn($scope.period.hourTotalCount);
+
+                          $scope.complete.jobs.push( productionWork );
+                          $scope.complete.jobCount = $scope.complete.jobs.length;
+
+
+                          var designInvoice = DaysService.getCost( productionWork.stations.design.hoursEstimated );
+                          var productionInvoice = DaysService.getCost( productionWork.stations.development.hoursEstimated );
+                          var totalInvoice = designInvoice + productionInvoice;
+
+                          $scope.complete.actualValue += totalInvoice;
+                          
+                          $scope.production.jobs.splice(i,1);
+                          $scope.production.jobCount = $scope.production.jobs.length;
+                          
+
+                        } else {
+
+                          var hourObj = ProductionService.doWork(productionWorkHours, productionWorkHoursWorked);
+
+                          //we update our job ticket
+                          $scope.production.jobs[i].stations.development.hours       = hourObj.hours;
+                          $scope.production.jobs[i].stations.development.hoursWorked = hourObj.hoursWorked;
+                          $scope.production.jobs[i].stations.development.log.push(hourObj.log);
+
+                        }
+                         
+                      }
+
+                    }
+
+                  }
+
+                  /* COMPLETE */
+                  if($scope.complete.jobs.length)
+                  {
+                  
+                      $scope.complete.jobs.forEach(function(project,index) 
+                      {
+
+                        if(project.invoiceOn == $scope.period.hourTotalCount)
+                        {
+                            //remove from completed
+                            //$scope.complete.jobs.splice(i,1);
+                            //$scope.complete.jobCount = $scope.complete.jobs.length;
+
+                            project.paidOn = DaysService.paidOn($scope.period.hourTotalCount);
+
+                            var designInvoice = DaysService.getCost( project.stations.design.hoursEstimated );
+                            var productionInvoice = DaysService.getCost( project.stations.development.hoursEstimated );
+                            var totalInvoice = designInvoice + productionInvoice;
+
+                            $scope.invoiced.jobs.push( project );
+                            $scope.invoiced.jobCount = $scope.invoiced.jobs.length;
+                            $scope.invoiced.money += totalInvoice;
+
+                        }
+
+                      });
+                    
+
+                  }
+
+                  /* INVOICED */
+                  if($scope.invoiced.jobs.length)
+                  {
+                
+                    $scope.invoiced.jobs.forEach(function(project,index) 
+                    {
+
+                      if(project.paidOn == $scope.period.hourTotalCount)
+                      {
+                          //remove from completed
+                          //$scope.complete.jobs.splice(i,1);
+                          //$scope.complete.jobCount = $scope.complete.jobs.length;
+
+                          var designInvoice = DaysService.getCost( project.stations.design.hoursEstimated );
+                          var productionInvoice = DaysService.getCost( project.stations.development.hoursEstimated );
+                          var totalInvoice = designInvoice + productionInvoice;
+
+                          $scope.paid.jobs.push( project );
+                          $scope.paid.jobCount = $scope.paid.jobs.length;
+                          $scope.paid.money += totalInvoice;
+
+                      }
+
+                    });
+                    
+                  }
+
 
               }
 
