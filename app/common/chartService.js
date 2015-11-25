@@ -19,6 +19,11 @@
         chart.data[0] = [];
         chart.data[1] = [];
 
+        chart.cumulativelabels = ['Income vs. Expense'];
+        chart.cumulativedata = [];
+        chart.cumulativedata[0] = [];
+        chart.cumulativedata[1] = [];
+
         /*
         for(i=0;i<cols;i++)
         {

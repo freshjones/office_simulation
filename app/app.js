@@ -130,9 +130,16 @@
          
                 var monthOut = Number( ($scope.production.costs + $scope.design.costs + $scope.invoiced.costs).toFixed(0) );
          
-                $scope.paid.month = Number( ( ($scope.paid.money - $scope.paid.month) - $scope.paid.month).toFixed(2) );
+                //console.log(' ');
+                //console.log('last month: ' + $scope.paid.month);
 
+                $scope.paid.month = Number( ( $scope.paid.money - $scope.paid.month ).toFixed(2) );
                 var monthIn = $scope.paid.month;
+                
+                //console.log('this month: ' + monthIn);
+
+                //console.log('cumulative: ' + $scope.paid.money);
+                //console.log(' ');
 
                 //var designIn      = DaysService.getCost( $scope..stations.design.hoursEstimated );
                 //var productionIn  = DaysService.getCost( productionWork.stations.development.hoursEstimated );
@@ -142,6 +149,10 @@
                 $scope.chart.labels.push('Month ' + $scope.period.currentMonth );
                 $scope.chart.data[0].push(monthIn);
                 $scope.chart.data[1].push(monthOut);
+
+                $scope.chart.cumulativedata[0][0] = $scope.paid.money;
+                $scope.chart.cumulativedata[1][0] = $scope.paid.moneyOut;
+
 
                 $scope.period.monthCounter = 0;
                 $scope.period.monthTotalCounter += 1;

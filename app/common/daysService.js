@@ -6,8 +6,8 @@
     var hourSpeed = 10;
     var rate = 125;
 
-    var invoice_terms = [0,14];
-    var net_terms = [30,60];
+    var invoice_terms = [0,30];
+    var net_terms = [30,90];
 
     function getJobHours(size)
     {
