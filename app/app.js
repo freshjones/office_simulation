@@ -14,7 +14,10 @@
       'common.production', 
       'common.complete',
       'common.invoice',
-      'common.cash'
+      'common.cash',
+      'common.chart',
+      'chart.js',
+      'chart'
     ])
 
     .controller('MainCtrl', function(
@@ -27,7 +30,8 @@
       CompleteService, 
       ProductionService,
       InvoiceService,
-      CashService
+      CashService,
+      ChartService
       )
     {
 
@@ -44,7 +48,7 @@
       $scope.complete     = CompleteService.setComplete();
       $scope.invoiced     = InvoiceService.setInvoice();
       $scope.paid         = CashService.setCash();
-
+      $scope.chart        = ChartService.setChart();
 
       $scope.showStartBtn = true;
 
@@ -79,6 +83,7 @@
         $scope.complete           = CompleteService.setComplete();
         $scope.invoiced           = InvoiceService.setInvoice();
         $scope.paid               = CashService.setCash();
+        $scope.chart              = ChartService.setChart();
 
         //console.log($scope.period.jobs)
         //start the inteval
@@ -116,17 +121,37 @@
                 $scope.period.currentDay += 1;
                 $scope.period.currentHour = 1;
 
-                
-                /* 
-                we could do calcs every 24 hours ??
-                */
-
               }
 
               if($scope.period.monthCounter == 720)
               {
-                $scope.period.monthCounter = 0;
+
                 $scope.paid.moneyOut = Number( ($scope.paid.moneyOut + ($scope.production.costs + $scope.design.costs + $scope.invoiced.costs)).toFixed(0) );
+         
+                var monthOut = Number( ($scope.production.costs + $scope.design.costs + $scope.invoiced.costs).toFixed(0) );
+         
+                $scope.paid.month = Number( ( ($scope.paid.money - $scope.paid.month) - $scope.paid.month).toFixed(2) );
+
+                var monthIn = $scope.paid.month;
+
+                //var designIn      = DaysService.getCost( $scope..stations.design.hoursEstimated );
+                //var productionIn  = DaysService.getCost( productionWork.stations.development.hoursEstimated );
+                //var monthIn       = designInvoice + productionInvoice;
+
+
+                $scope.chart.labels.push('Month ' + $scope.period.currentMonth );
+                $scope.chart.data[0].push(monthIn);
+                $scope.chart.data[1].push(monthOut);
+
+                $scope.period.monthCounter = 0;
+                $scope.period.monthTotalCounter += 1;
+                $scope.period.currentMonth += 1;
+
+                if($scope.period.currentMonth >= 13)
+                {
+                  $scope.period.currentMonth = 1;
+                }
+
               }
 
               if( $scope.period.releaseTimes[$scope.period.hourTotalCount] != undefined )

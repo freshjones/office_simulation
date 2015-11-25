@@ -213,9 +213,11 @@
         period.hours               = numDays * 24;
         period.currentDay          = 1;
         period.currentHour         = 1;
+        period.currentMonth        = 1;
         period.hourSpeed           = hourSpeed;
         period.hourCounter         = 0;
         period.monthCounter        = 0;
+        period.monthTotalCounter   = 0;
         period.hourTotalCount      = 0;
         period.workingHours        = [8,9,10,11,12,13,14,15,16];
 

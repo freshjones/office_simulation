@@ -13,6 +13,7 @@
 
         cash.jobs             = [];
         cash.jobCount         = 0;
+        cash.month            = 0;
         cash.money            = 0;
         cash.moneyOut         = 0;
 

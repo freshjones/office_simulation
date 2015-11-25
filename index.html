@@ -2,9 +2,14 @@
 <html ng-app="SimApp" >
 <head>
     <title ng-bind="'My App &mdash; ' + title">My App</title>
+
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/angular.chartjs/latest/angular-chart.css" />
+
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>
-   
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/angular.chartjs/latest/angular-chart.min.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
+
 </head>
 <body ng-controller="MainCtrl">       
     
@@ -16,7 +21,9 @@
         <h1>Duration</h1>
         Total Days Available: {{period.days}} days<br/>
         Total Hours Available: {{period.hours}} hours<br/>
-        Current day: {{period.currentDay}} Current Hour: {{period.currentHour}}
+        Current Month: {{period.currentMonth}}<br/>
+        Current day: {{period.currentDay}}<br/>
+        Current Hour: {{period.currentHour}}
     </div>
 
     <div class="block">
@@ -51,6 +58,11 @@
         <h1>Cash In: $ {{paid.money}}</h1>
         <h1>Cash Out: $ {{paid.moneyOut}}</h1>
     </div>
+
+
+<div class="block" style="position: absolute; top:50px; right:50px; width:800px; height:600px;" ng-controller="ChartController">
+    <canvas id="bar" class="chart chart-bar" chart-data="chart.data" chart-labels="chart.labels"></canvas>
+</div>
 
 </body>
 </html>
