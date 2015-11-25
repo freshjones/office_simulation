@@ -8,6 +8,18 @@
     var resources = 1;
     var overhead  = 10000;
 
+    function fluxuateCosts(cost)
+    {
+
+      var min,max;
+
+      min = cost - 5000;
+      max = cost + 5000;
+
+      return Math.floor(Math.random()*(max-min+1)+min);
+
+    }
+
     return {
       
       setInvoice: function()
@@ -23,7 +35,13 @@
 
         return invoice;
 
+      },
+
+      getMonthlyOpCosts: function(cost)
+      {
+        return fluxuateCosts(cost);
       }
+
 
     };
 

@@ -126,9 +126,15 @@
               if($scope.period.monthCounter == 720)
               {
 
-                $scope.paid.moneyOut = Number( ($scope.paid.moneyOut + ($scope.production.costs + $scope.design.costs + $scope.invoiced.costs)).toFixed(0) );
+                var moneyOut = Number(($scope.production.costs + $scope.design.costs + $scope.invoiced.costs).toFixed(0));
+
+                var randMoneyOut = InvoiceService.getMonthlyOpCosts(moneyOut);
+
+                var totalMoneyOut = Number( ($scope.paid.moneyOut + randMoneyOut).toFixed(0) );
+                
+                $scope.paid.moneyOut = totalMoneyOut;
          
-                var monthOut = Number( ($scope.production.costs + $scope.design.costs + $scope.invoiced.costs).toFixed(0) );
+                var monthOut = randMoneyOut;
          
                 //console.log(' ');
                 //console.log('last month: ' + $scope.paid.month);
