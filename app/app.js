@@ -70,6 +70,31 @@
       $scope.completedTotals = 0;
       */
 
+      $scope.runSimMonteCarlo = function()
+      {
+
+        //reset period
+        $scope.period             = DaysService.period(runFor);
+        $scope.backlog            = BacklogService.setBacklog();
+        $scope.design             = DesignService.setDesign();
+        $scope.production         = ProductionService.setProduction();
+        $scope.complete           = CompleteService.setComplete();
+        $scope.invoiced           = InvoiceService.setInvoice();
+        $scope.paid               = CashService.setCash();
+        $scope.chart              = ChartService.setChart();
+
+        var test = $scope.period.hours;
+        var i=0;
+
+        for(i=0;i<test;i++)
+        {
+          startSimulation();
+        }
+
+        $scope.showStartBtn = true;
+
+      }
+
       $scope.runSim = function()
       {
         //cancel all intervals
@@ -89,7 +114,27 @@
         //start the inteval
         periodInterval = $interval(startSimulation, $scope.period.hourSpeed);
 
-        function startSimulation()
+        /*
+        angular.extend(backlogArray, backlogInit);
+
+        $scope.backlog = backlogArray;
+        $scope.backlogCount = backlogArray.length;
+
+        designWIP = [];
+        $scope.design = designWIP;
+        $scope.designCount  = 0;
+
+        completedWork = [];
+        $scope.completed = completedWork;
+        $scope.completedCount = 0;
+
+        $scope.showStartBtn = false;
+        backlogInterval = $interval(startSimulation, speed);
+        */
+      }
+
+
+      function startSimulation()
         {
 
             //hide run button
@@ -397,26 +442,6 @@
             }
 
         }
-
-        /*
-        angular.extend(backlogArray, backlogInit);
-
-        $scope.backlog = backlogArray;
-        $scope.backlogCount = backlogArray.length;
-
-        designWIP = [];
-        $scope.design = designWIP;
-        $scope.designCount  = 0;
-
-        completedWork = [];
-        $scope.completed = completedWork;
-        $scope.completedCount = 0;
-
-        $scope.showStartBtn = false;
-        backlogInterval = $interval(startSimulation, speed);
-        */
-      }
-
       /*
       $scope.$watch("backlog.jobCount", function(newValue, oldValue) {
         if ($scope.backlog.jobCount == 1) {
