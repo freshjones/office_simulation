@@ -5,7 +5,7 @@
 
     var hourSpeed = 10;
     var rate = 125;
-
+    var startupCapital = 0;
     var invoice_terms = [0,30];
     var net_terms = [30,90];
 
@@ -218,6 +218,7 @@
         period.hourCounter         = 0;
         period.monthCounter        = 0;
         period.monthTotalCounter   = 0;
+        period.startupCapital      = startupCapital;
         period.hourTotalCount      = 0;
         period.workingHours        = [8,9,10,11,12,13,14,15,16];
 

@@ -3,7 +3,7 @@ var concat            = require("gulp-concat");
 var sass              = require('gulp-sass');
 var ngHtml2Js         = require("gulp-ng-html2js");
 var livereload        = require('gulp-livereload');
-var connectlr         = require('connect-livereload')()
+var connectlr         = require('connect-livereload')();
 
 var EXPRESS_PORT      = 4000;
 var EXPRESS_ROOT      = __dirname;

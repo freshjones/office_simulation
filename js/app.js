@@ -99,17 +99,20 @@
             $scope.monte.iterations -= 1;
             $scope.monte.curIteration += 1;
 
-            $scope.monte.income = ($scope.monte.income + $scope.paid.money) / $scope.monte.curIteration;
-            $scope.monte.expenses = ($scope.monte.expenses + $scope.paid.moneyOut) / $scope.monte.curIteration;
+            //$scope.monte.income += $scope.paid.money;
+            //$scope.monte.expenses = ($scope.monte.expenses + $scope.paid.moneyOut) / $scope.monte.curIteration;
 
-            $scope.chart.cumulativedata[0][0] = $scope.monte.income;
-            $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
+            //$scope.chart.cumulativedata[0][0] = $scope.monte.income;
+            //$scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
 
             resetSimulation();
 
             var i,test = $scope.period.hours;
 
-            for(i=0;i<test-1;i++)
+            /* NOT SURE ABOUT THIS */
+            $scope.paid.month = $scope.monte.seed;
+
+            for(i=0;i<=test;i++)
             {
               startSimulation();
             }
@@ -169,7 +172,22 @@
 
             //get a backlog of work for the time period
             if($scope.period.hours <= 0 )
-            {
+            { 
+              
+
+                $scope.monte.CumIncome = $scope.monte.CumIncome + $scope.paid.money;
+                $scope.monte.CumExpenses = $scope.monte.CumExpenses + $scope.paid.moneyOut;
+
+                $scope.monte.income = $scope.monte.CumIncome / $scope.monte.curIteration;
+                $scope.monte.expenses = $scope.monte.CumExpenses / $scope.monte.curIteration;
+
+                $scope.monte.margin = $scope.monte.income / $scope.monte.expenses;
+
+                $scope.monte.seed = $scope.paid.month;
+
+                $scope.chart.cumulativedata[0][0] = $scope.monte.income;
+                $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
+
                 $scope.showStartBtn = true;
                 $interval.cancel(periodInterval);
             } 
@@ -213,7 +231,7 @@
 
                 $scope.paid.month = Number( ( $scope.paid.money - $scope.paid.month ).toFixed(2) );
                 var monthIn = $scope.paid.month;
-                
+
                 //console.log('this month: ' + monthIn);
 
                 //console.log('cumulative: ' + $scope.paid.money);
@@ -773,7 +791,7 @@
 
     var hourSpeed = 10;
     var rate = 125;
-
+    var startupCapital = 0;
     var invoice_terms = [0,30];
     var net_terms = [30,90];
 
@@ -986,6 +1004,7 @@
         period.hourCounter         = 0;
         period.monthCounter        = 0;
         period.monthTotalCounter   = 0;
+        period.startupCapital      = startupCapital;
         period.hourTotalCount      = 0;
         period.workingHours        = [8,9,10,11,12,13,14,15,16];
 
@@ -1132,7 +1151,7 @@
   function montecarloService() 
   {
 
-    var iterations = 100;
+    var iterations = 1000;
     var speed = 200;
 
     return {
@@ -1146,8 +1165,12 @@
         monte.iterationStart    = iterations;
         monte.iterations        = iterations;
         monte.curIteration      = 0;
+        monte.CumIncome         = 0;
+        monte.CumExpenses       = 0;
         monte.income            = 0;
         monte.expenses          = 0;
+        monte.margin            = 100;
+        monte.seed              = 0;
 
         return monte;
 

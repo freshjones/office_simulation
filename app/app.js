@@ -99,17 +99,20 @@
             $scope.monte.iterations -= 1;
             $scope.monte.curIteration += 1;
 
-            $scope.monte.income = ($scope.monte.income + $scope.paid.money) / $scope.monte.curIteration;
-            $scope.monte.expenses = ($scope.monte.expenses + $scope.paid.moneyOut) / $scope.monte.curIteration;
+            //$scope.monte.income += $scope.paid.money;
+            //$scope.monte.expenses = ($scope.monte.expenses + $scope.paid.moneyOut) / $scope.monte.curIteration;
 
-            $scope.chart.cumulativedata[0][0] = $scope.monte.income;
-            $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
+            //$scope.chart.cumulativedata[0][0] = $scope.monte.income;
+            //$scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
 
             resetSimulation();
 
             var i,test = $scope.period.hours;
 
-            for(i=0;i<test-1;i++)
+            /* NOT SURE ABOUT THIS */
+            $scope.paid.month = $scope.monte.seed;
+
+            for(i=0;i<=test;i++)
             {
               startSimulation();
             }
@@ -169,7 +172,22 @@
 
             //get a backlog of work for the time period
             if($scope.period.hours <= 0 )
-            {
+            { 
+              
+
+                $scope.monte.CumIncome = $scope.monte.CumIncome + $scope.paid.money;
+                $scope.monte.CumExpenses = $scope.monte.CumExpenses + $scope.paid.moneyOut;
+
+                $scope.monte.income = $scope.monte.CumIncome / $scope.monte.curIteration;
+                $scope.monte.expenses = $scope.monte.CumExpenses / $scope.monte.curIteration;
+
+                $scope.monte.margin = $scope.monte.income / $scope.monte.expenses;
+
+                $scope.monte.seed = $scope.paid.month;
+
+                $scope.chart.cumulativedata[0][0] = $scope.monte.income;
+                $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
+
                 $scope.showStartBtn = true;
                 $interval.cancel(periodInterval);
             } 
@@ -213,7 +231,7 @@
 
                 $scope.paid.month = Number( ( $scope.paid.money - $scope.paid.month ).toFixed(2) );
                 var monthIn = $scope.paid.month;
-                
+
                 //console.log('this month: ' + monthIn);
 
                 //console.log('cumulative: ' + $scope.paid.money);
