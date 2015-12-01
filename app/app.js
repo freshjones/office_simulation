@@ -16,6 +16,7 @@
       'common.invoice',
       'common.cash',
       'common.chart',
+      'common.montecarlo',
       'chart.js',
       'chart'
     ])
@@ -31,24 +32,21 @@
       ProductionService,
       InvoiceService,
       CashService,
-      ChartService
+      ChartService,
+      MontecarloService
       )
     {
 
       
       var periodInterval;
       var backlogInterval;
+      var monteInterval;
 
       var runFor          = 365;
       
-      $scope.period       = DaysService.period(runFor);
-      $scope.backlog      = BacklogService.setBacklog();
-      $scope.design       = DesignService.setDesign();
-      $scope.production   = ProductionService.setProduction();
-      $scope.complete     = CompleteService.setComplete();
-      $scope.invoiced     = InvoiceService.setInvoice();
-      $scope.paid         = CashService.setCash();
-      $scope.chart        = ChartService.setChart();
+      resetSimulation();
+
+      $scope.monte        = MontecarloService.setMonte();
 
       $scope.showStartBtn = true;
 
@@ -73,25 +71,62 @@
       $scope.runSimMonteCarlo = function()
       {
 
-        //reset period
-        $scope.period             = DaysService.period(runFor);
-        $scope.backlog            = BacklogService.setBacklog();
-        $scope.design             = DesignService.setDesign();
-        $scope.production         = ProductionService.setProduction();
-        $scope.complete           = CompleteService.setComplete();
-        $scope.invoiced           = InvoiceService.setInvoice();
-        $scope.paid               = CashService.setCash();
+        resetSimulation();
+
         $scope.chart              = ChartService.setChart();
+        $scope.monte              = MontecarloService.setMonte();
 
-        var test = $scope.period.hours;
-        var i=0;
+        
+        var monte = $scope.monte.iterations;
+        var i,r;
 
-        for(i=0;i<test;i++)
+        monteInterval = $interval(runMonte, $scope.monte.speed);
+
+
+      }
+
+      function runMonte()
+      {
+
+        if($scope.monte.iterations <= 0 )
         {
-          startSimulation();
+            $scope.showStartBtn = true;
+            $interval.cancel(monteInterval);
+        } 
+        else 
+        {
+
+            $scope.monte.iterations -= 1;
+            $scope.monte.curIteration += 1;
+
+            $scope.monte.income = ($scope.monte.income + $scope.paid.money) / $scope.monte.curIteration;
+            $scope.monte.expenses = ($scope.monte.expenses + $scope.paid.moneyOut) / $scope.monte.curIteration;
+
+            $scope.chart.cumulativedata[0][0] = $scope.monte.income;
+            $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
+
+            resetSimulation();
+
+            var i,test = $scope.period.hours;
+
+            for(i=0;i<test-1;i++)
+            {
+              startSimulation();
+            }
+
         }
 
-        $scope.showStartBtn = true;
+      }
+
+      function resetSimulation()
+      {
+        $scope.period       = DaysService.period(runFor);
+        $scope.backlog      = BacklogService.setBacklog();
+        $scope.design       = DesignService.setDesign();
+        $scope.production   = ProductionService.setProduction();
+        $scope.complete     = CompleteService.setComplete();
+        $scope.invoiced     = InvoiceService.setInvoice();
+        $scope.paid         = CashService.setCash();
 
       }
 
@@ -100,15 +135,7 @@
         //cancel all intervals
         $interval.cancel();
 
-        //reset period
-        $scope.period             = DaysService.period(runFor);
-        $scope.backlog            = BacklogService.setBacklog();
-        $scope.design             = DesignService.setDesign();
-        $scope.production         = ProductionService.setProduction();
-        $scope.complete           = CompleteService.setComplete();
-        $scope.invoiced           = InvoiceService.setInvoice();
-        $scope.paid               = CashService.setCash();
-        $scope.chart              = ChartService.setChart();
+        resetSimulation();
 
         //console.log($scope.period.jobs)
         //start the inteval
@@ -201,10 +228,8 @@
                 $scope.chart.data[0].push(monthIn);
                 $scope.chart.data[1].push(monthOut);
 
-                $scope.chart.cumulativedata[0][0] = $scope.paid.money;
-                $scope.chart.cumulativedata[1][0] = $scope.paid.moneyOut;
-
-
+                 
+               
                 $scope.period.monthCounter = 0;
                 $scope.period.monthTotalCounter += 1;
                 $scope.period.currentMonth += 1;
