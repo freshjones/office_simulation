@@ -4,7 +4,7 @@
   function montecarloService() 
   {
 
-    var iterations = 2;
+    var iterations = 1;
     var speed = 200;
 
     return {

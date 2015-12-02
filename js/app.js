@@ -36,7 +36,6 @@
       MontecarloService
       )
     {
-
       
       var periodInterval;
       var backlogInterval;
@@ -73,15 +72,20 @@
 
         resetSimulation();
 
+        $scope.backlog            = BacklogService.setBacklog();
+        $scope.design             = DesignService.setDesign();
+        $scope.production         = ProductionService.setProduction();
+        $scope.complete           = CompleteService.setComplete();
+        $scope.invoiced           = InvoiceService.setInvoice();
+        $scope.paid               = CashService.setCash();
+
         $scope.chart              = ChartService.setChart();
         $scope.monte              = MontecarloService.setMonte();
 
-        
         var monte = $scope.monte.iterations;
         var i,r;
 
         monteInterval = $interval(runMonte, $scope.monte.speed);
-
 
       }
 
@@ -99,18 +103,9 @@
             $scope.monte.iterations -= 1;
             $scope.monte.curIteration += 1;
 
-            //$scope.monte.income += $scope.paid.money;
-            //$scope.monte.expenses = ($scope.monte.expenses + $scope.paid.moneyOut) / $scope.monte.curIteration;
-
-            //$scope.chart.cumulativedata[0][0] = $scope.monte.income;
-            //$scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
-
             resetSimulation();
 
             var i,test = $scope.period.hours;
-
-            /* NOT SURE ABOUT THIS */
-            //$scope.paid.month = $scope.monte.seed;
 
             for(i=0;i<=test;i++)
             {
@@ -124,45 +119,13 @@
       function resetSimulation()
       {
         $scope.period       = DaysService.period(runFor);
-        $scope.backlog      = BacklogService.setBacklog();
-        $scope.design       = DesignService.setDesign();
-        $scope.production   = ProductionService.setProduction();
-        $scope.complete     = CompleteService.setComplete();
-        $scope.invoiced     = InvoiceService.setInvoice();
-        $scope.paid         = CashService.setCash();
-
+        //$scope.backlog      = BacklogService.setBacklog();
+        //$scope.design       = DesignService.setDesign();
+        //$scope.production   = ProductionService.setProduction();
+        //$scope.complete     = CompleteService.setComplete();
+        //$scope.invoiced     = InvoiceService.setInvoice();
+        //$scope.paid         = CashService.setCash();
       }
-
-      $scope.runSim = function()
-      {
-        //cancel all intervals
-        $interval.cancel();
-
-        resetSimulation();
-
-        //console.log($scope.period.jobs)
-        //start the inteval
-        periodInterval = $interval(startSimulation, $scope.period.hourSpeed);
-
-        /*
-        angular.extend(backlogArray, backlogInit);
-
-        $scope.backlog = backlogArray;
-        $scope.backlogCount = backlogArray.length;
-
-        designWIP = [];
-        $scope.design = designWIP;
-        $scope.designCount  = 0;
-
-        completedWork = [];
-        $scope.completed = completedWork;
-        $scope.completedCount = 0;
-
-        $scope.showStartBtn = false;
-        backlogInterval = $interval(startSimulation, speed);
-        */
-      }
-
 
       function startSimulation()
         {
@@ -187,23 +150,21 @@
 
                 $scope.chart.data = $scope.monte.monthData;
 
-//console.log($scope.monte.monthData);
                 $scope.chart.cumulativedata[0][0] = $scope.monte.income;
                 $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
 
                 $scope.showStartBtn = true;
                 $interval.cancel(periodInterval);
+
             } 
             else 
             {
+
               $scope.period.hourCounter += 1;
               $scope.period.monthCounter += 1;
               $scope.period.hours -= 1;
               $scope.period.currentHour += 1;
               $scope.period.hourTotalCount += 1;
-
-              //$scope.design.cost = Number( ($scope.design.cost + ( $scope.design.costperhour * $scope.design.workers ) ).toFixed(2) );
-              //$scope.production.cost = Number( ($scope.production.cost + ( $scope.production.costperhour * $scope.production.workers ) ).toFixed(2) ) ;
 
               if($scope.period.hourCounter == 24)
               {
@@ -231,21 +192,9 @@
          
                 var monthIndex = $scope.period.currentMonth - 1;
 
-                //console.log(' ');
-                //console.log('last month: ' + $scope.paid.month);
-
                 $scope.paid.month = Number( ( $scope.paid.money - $scope.paid.month ).toFixed(2) );
                 
                 var monthIn = $scope.paid.month;
-
-                //console.log('this month: ' + monthIn);
-
-                //console.log('cumulative: ' + $scope.paid.money);
-                //console.log(' ');
-
-                //var designIn      = DaysService.getCost( $scope..stations.design.hoursEstimated );
-                //var productionIn  = DaysService.getCost( productionWork.stations.development.hoursEstimated );
-                //var monthIn       = designInvoice + productionInvoice;
 
                 $scope.chart.labels[monthIndex] = 'Month ' + $scope.period.currentMonth;
                 
@@ -262,18 +211,33 @@
                   $scope.monte.cumMonthData[0][monthIndex] = 0;
                 }
 
+                if($scope.monte.monthData[1][monthIndex] == undefined)
+                {
+                  $scope.monte.monthData[1][monthIndex] = 0;
+                }
+
+                if($scope.monte.cumMonthData[1][monthIndex] == undefined)
+                {
+                  $scope.monte.cumMonthData[1][monthIndex] = 0;
+                }
+
                 var monteCumMonthData = $scope.monte.cumMonthData[0][monthIndex];
-                var curMonthData = monthIn;
+                var monteCumMonthOutData = $scope.monte.cumMonthData[1][monthIndex];
 
-                var cumMonth = monteCumMonthData + curMonthData;
+                var curMonthData      = monthIn;
+                var curMonthOutData   = monthOut;
 
-                var avgMonth = cumMonth / $scope.monte.curIteration;
+                var cumMonth          = monteCumMonthData + curMonthData;
+                var cumMonthOut       = monteCumMonthOutData + curMonthOutData;
+
+                var avgMonth          = cumMonth / $scope.monte.curIteration;
+                var avgMonthOut       = cumMonthOut / $scope.monte.curIteration;
 
                 $scope.monte.cumMonthData[0][monthIndex] = cumMonth;
+                $scope.monte.cumMonthData[1][monthIndex] = cumMonthOut;
 
                 $scope.monte.monthData[0][monthIndex] = avgMonth;
-                $scope.monte.monthData[1][monthIndex] = $scope.monte.cumMonthData[0][monthIndex] / $scope.monte.curIteration;
-
+                $scope.monte.monthData[1][monthIndex] = avgMonthOut;
                 
                 $scope.period.monthCounter = 0;
                 $scope.period.monthTotalCounter += 1;
@@ -512,68 +476,8 @@
             }
 
         }
-      /*
-      $scope.$watch("backlog.jobCount", function(newValue, oldValue) {
-        if ($scope.backlog.jobCount == 1) {
-          //BacklogService.startBacklog();
-          $interval.cancel(backlogInterval);
-          backlogInterval = $interval(processBacklogItem, $scope.backlog.speed);
-        }
-      });
-      */
-
-      function processBacklogItem()
-      {
-
-          if( $scope.backlog.jobs.length <= 0 )
-          {
-              $interval.cancel(backlogInterval);
-          } else {
-
-              var nextBacklogItem = $scope.backlog.jobs.shift();
-              //designWIP.push(nextBacklogItem);
-
-              //$scope.design       = designWIP;
-              //$scope.designCount  = $scope.design.length;
-
-              $scope.backlog.jobCount = $scope.backlog.jobs.length;
-          }
-          
-      }
-
-
-      $scope.$watch("designCount", function(newValue, oldValue) {
-        if ($scope.designCount == 1) {
-          $interval.cancel(designInterval);
-          designInterval = $interval(processDesignWip, designSpeed);
-        }
-      });
-
-
-      $rootScope.title = 'Cool'
-
-
-      function processDesignWip()
-      {
-         
-          if($scope.design.length == 0 )
-          {
-              //$scope.showStartBtn = true;
-              $interval.cancel(designInterval);
-          } else {
-
-              var nextJob = $scope.design.shift();
-
-              completedWork.push(nextJob);
-
-              $scope.completed    = completedWork;
-              $scope.completedCount  = $scope.completed.length;
-              $scope.completedTotals = $scope.completedTotals + nextJob.value;
-
-              $scope.designCount  = $scope.design.length;
-          }
-          
-      }
+     
+        $rootScope.title = 'Cool'
 
     });
 
@@ -1178,7 +1082,7 @@
   function montecarloService() 
   {
 
-    var iterations = 2;
+    var iterations = 1;
     var speed = 200;
 
     return {
