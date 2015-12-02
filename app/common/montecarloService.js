@@ -4,7 +4,7 @@
   function montecarloService() 
   {
 
-    var iterations = 1000;
+    var iterations = 2;
     var speed = 200;
 
     return {
@@ -24,6 +24,14 @@
         monte.expenses          = 0;
         monte.margin            = 100;
         monte.seed              = 0;
+
+        monte.monthData         = [];
+        monte.monthData[0]      = [];
+        monte.monthData[1]      = [];
+
+        monte.cumMonthData         = [];
+        monte.cumMonthData[0]      = [];
+        monte.cumMonthData[1]      = [];
 
         return monte;
 

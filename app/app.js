@@ -110,7 +110,7 @@
             var i,test = $scope.period.hours;
 
             /* NOT SURE ABOUT THIS */
-            $scope.paid.month = $scope.monte.seed;
+            //$scope.paid.month = $scope.monte.seed;
 
             for(i=0;i<=test;i++)
             {
@@ -185,6 +185,9 @@
 
                 $scope.monte.seed = $scope.paid.month;
 
+                $scope.chart.data = $scope.monte.monthData;
+
+//console.log($scope.monte.monthData);
                 $scope.chart.cumulativedata[0][0] = $scope.monte.income;
                 $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
 
@@ -226,10 +229,13 @@
          
                 var monthOut = randMoneyOut;
          
+                var monthIndex = $scope.period.currentMonth - 1;
+
                 //console.log(' ');
                 //console.log('last month: ' + $scope.paid.month);
 
                 $scope.paid.month = Number( ( $scope.paid.money - $scope.paid.month ).toFixed(2) );
+                
                 var monthIn = $scope.paid.month;
 
                 //console.log('this month: ' + monthIn);
@@ -241,13 +247,34 @@
                 //var productionIn  = DaysService.getCost( productionWork.stations.development.hoursEstimated );
                 //var monthIn       = designInvoice + productionInvoice;
 
+                $scope.chart.labels[monthIndex] = 'Month ' + $scope.period.currentMonth;
+                
+                //$scope.chart.data[0][monthIndex] = monthIn;
+                //$scope.chart.data[1][monthIndex] = monthOut;
 
-                $scope.chart.labels.push('Month ' + $scope.period.currentMonth );
-                $scope.chart.data[0].push(monthIn);
-                $scope.chart.data[1].push(monthOut);
+                if($scope.monte.monthData[0][monthIndex] == undefined)
+                {
+                  $scope.monte.monthData[0][monthIndex] = 0;
+                }
 
-                 
-               
+                if($scope.monte.cumMonthData[0][monthIndex] == undefined)
+                {
+                  $scope.monte.cumMonthData[0][monthIndex] = 0;
+                }
+
+                var monteCumMonthData = $scope.monte.cumMonthData[0][monthIndex];
+                var curMonthData = monthIn;
+
+                var cumMonth = monteCumMonthData + curMonthData;
+
+                var avgMonth = cumMonth / $scope.monte.curIteration;
+
+                $scope.monte.cumMonthData[0][monthIndex] = cumMonth;
+
+                $scope.monte.monthData[0][monthIndex] = avgMonth;
+                $scope.monte.monthData[1][monthIndex] = $scope.monte.cumMonthData[0][monthIndex] / $scope.monte.curIteration;
+
+                
                 $scope.period.monthCounter = 0;
                 $scope.period.monthTotalCounter += 1;
                 $scope.period.currentMonth += 1;
