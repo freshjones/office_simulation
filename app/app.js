@@ -70,8 +70,13 @@
 
       $scope.runSimMonteCarlo = function()
       {
+        
+        //hide run button
+        $scope.showStartBtn = false;
+
         resetPeriod();
         resetSimulation();
+
         interationInterval = $interval(runInterations, $scope.period.iterationSpeed);
       }
 
@@ -93,18 +98,23 @@
 
             var jobData = DaysService.setJobs(numJobs);
 
-            jobData.forEach(function(job, index) 
+            for (var index in jobData) 
             {
-              job.releaseTime = DaysService.getReleaseTime(hours);
-              $scope.period.jobs.push(job);
-            });
+              jobData[index].releaseTime = DaysService.getReleaseTime(hours);
+              $scope.period.jobs[index] = jobData[index];
+            }
             
+            $scope.period.numJobs = Object.keys($scope.period.jobs).length;
+
             //build release data
             $scope.period.releaseTimes = DaysService.buildReleaseSchedule($scope.period.jobs);
 
+            $scope.period.days += days;
+            $scope.period.hours += hours;
+
             var i;
 
-            for(i=0;i<=hours;i++)
+            for(i=0;i<=$scope.period.hours-1;i++)
             {
               runSimulation();
             }
@@ -133,11 +143,6 @@
       function runSimulation()
         {
 
-            //hide run button
-            $scope.showStartBtn = false;
-
-            
-            
 
               $scope.period.hourCounter += 1;
               $scope.period.monthCounter += 1;
@@ -156,6 +161,13 @@
 
               }
 
+              if($scope.period.hours == $scope.period.totalhours)
+              {
+                  $scope.period.currentDay = 1;
+                  //$scope.period.hourTotalCount = 0;
+
+              }
+              
               if($scope.period.monthCounter == 720)
               {
 
@@ -255,6 +267,10 @@
                 $scope.backlog.jobCount = $scope.backlog.jobs.length;
                 $scope.complete.potentialValue +=  Number((newJob.estimate).toFixed(2)) ;
 
+                //lets remove it from the potential job list
+                delete $scope.period.jobs[jobIdx];
+                $scope.period.numJobs = Object.keys($scope.period.jobs).length;
+
                 //console.log(newJob);
                 //we have just recieved a job we can start on we now need to know
                 /*
@@ -267,10 +283,11 @@
                 */
                 //BacklogService.addBacklogItem($scope.period.jobs[jobIdx]);
 
-              }
+              } 
 
               if($scope.backlog.jobs.length > 0 )
               {
+
 
                 /*
                 We have jobs yay! now we get it into the system via the handoff increment
@@ -295,7 +312,7 @@
 
                 });
                
-              }
+              } 
 
               /* create the work day */
 

@@ -70,8 +70,13 @@
 
       $scope.runSimMonteCarlo = function()
       {
+        
+        //hide run button
+        $scope.showStartBtn = false;
+
         resetPeriod();
         resetSimulation();
+
         interationInterval = $interval(runInterations, $scope.period.iterationSpeed);
       }
 
@@ -93,18 +98,23 @@
 
             var jobData = DaysService.setJobs(numJobs);
 
-            jobData.forEach(function(job, index) 
+            for (var index in jobData) 
             {
-              job.releaseTime = DaysService.getReleaseTime(hours);
-              $scope.period.jobs.push(job);
-            });
+              jobData[index].releaseTime = DaysService.getReleaseTime(hours);
+              $scope.period.jobs[index] = jobData[index];
+            }
             
+            $scope.period.numJobs = Object.keys($scope.period.jobs).length;
+
             //build release data
             $scope.period.releaseTimes = DaysService.buildReleaseSchedule($scope.period.jobs);
 
+            $scope.period.days += days;
+            $scope.period.hours += hours;
+
             var i;
 
-            for(i=0;i<=hours;i++)
+            for(i=0;i<=$scope.period.hours-1;i++)
             {
               runSimulation();
             }
@@ -133,11 +143,6 @@
       function runSimulation()
         {
 
-            //hide run button
-            $scope.showStartBtn = false;
-
-            
-            
 
               $scope.period.hourCounter += 1;
               $scope.period.monthCounter += 1;
@@ -156,6 +161,13 @@
 
               }
 
+              if($scope.period.hours == $scope.period.totalhours)
+              {
+                  $scope.period.currentDay = 1;
+                  //$scope.period.hourTotalCount = 0;
+
+              }
+              
               if($scope.period.monthCounter == 720)
               {
 
@@ -255,6 +267,10 @@
                 $scope.backlog.jobCount = $scope.backlog.jobs.length;
                 $scope.complete.potentialValue +=  Number((newJob.estimate).toFixed(2)) ;
 
+                //lets remove it from the potential job list
+                delete $scope.period.jobs[jobIdx];
+                $scope.period.numJobs = Object.keys($scope.period.jobs).length;
+
                 //console.log(newJob);
                 //we have just recieved a job we can start on we now need to know
                 /*
@@ -267,10 +283,11 @@
                 */
                 //BacklogService.addBacklogItem($scope.period.jobs[jobIdx]);
 
-              }
+              } 
 
               if($scope.backlog.jobs.length > 0 )
               {
+
 
                 /*
                 We have jobs yay! now we get it into the system via the handoff increment
@@ -295,7 +312,7 @@
 
                 });
                
-              }
+              } 
 
               /* create the work day */
 
@@ -712,7 +729,7 @@
   function daysService() {
 
     var hourSpeed = 10;
-    var iterationSpeed = 10;
+    var iterationSpeed = 1000;
     var rate = 125;
     var startupCapital = 0;
     var invoice_terms = [0,30];
@@ -851,17 +868,33 @@
 
     }
 
+    function generateUUID(){
+        var d = new Date().getTime();
+        if(window.performance && typeof window.performance.now === "function"){
+            d += performance.now();; //use high-precision timer if available
+        }
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (d + Math.random()*16)%16 | 0;
+            d = Math.floor(d/16);
+            return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+        });
+        return uuid;
+    }
+
+
     function buildJobs(val)
     {
 
-      var data = [];
+      var data = {};
       var i;
       for(i=0;i<val;i++)
       {
 
         var job = getAJob();
-        
-        data.push(job);
+
+        var jobkey = generateUUID();
+
+        data[jobkey] = job;
 
       };
 
@@ -924,10 +957,10 @@
         var period = {};
         
         period.iterations          = numIterations;
-        period.curIteration        = 1;
+        period.curIteration        = 0;
         period.iterationSpeed      = iterationSpeed;
 
-
+        period.totalhours          = numDays * 24;
         period.days                = numDays;
         period.hours               = numDays * 24;
         period.currentDay          = 1;
@@ -944,8 +977,8 @@
         //var numJobs                = 50; //setNumJobs(numDays);
         //var jobdata                = 
         period.numJobs             = 0;
-        period.jobs                = [];
-        period.releaseTimes        = []; //buildReleaseTimes(period.hours,jobdata);
+        period.jobs                = {};
+        period.releaseTimes        = {}; //buildReleaseTimes(period.hours,jobdata);
 
         return period;
 
@@ -964,10 +997,10 @@
       buildReleaseSchedule : function(jobs)
       {
         var releaseTimes = {};
-        jobs.forEach(function(job,index)
+        for (var index in jobs)     
         {
-          releaseTimes[job.releaseTime] = index;
-        });
+          releaseTimes[jobs[index].releaseTime] = index;
+        }
 
         return releaseTimes;
       },

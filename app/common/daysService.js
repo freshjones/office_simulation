@@ -4,7 +4,7 @@
   function daysService() {
 
     var hourSpeed = 10;
-    var iterationSpeed = 10;
+    var iterationSpeed = 1000;
     var rate = 125;
     var startupCapital = 0;
     var invoice_terms = [0,30];
@@ -143,17 +143,33 @@
 
     }
 
+    function generateUUID(){
+        var d = new Date().getTime();
+        if(window.performance && typeof window.performance.now === "function"){
+            d += performance.now();; //use high-precision timer if available
+        }
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (d + Math.random()*16)%16 | 0;
+            d = Math.floor(d/16);
+            return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+        });
+        return uuid;
+    }
+
+
     function buildJobs(val)
     {
 
-      var data = [];
+      var data = {};
       var i;
       for(i=0;i<val;i++)
       {
 
         var job = getAJob();
-        
-        data.push(job);
+
+        var jobkey = generateUUID();
+
+        data[jobkey] = job;
 
       };
 
@@ -216,10 +232,10 @@
         var period = {};
         
         period.iterations          = numIterations;
-        period.curIteration        = 1;
+        period.curIteration        = 0;
         period.iterationSpeed      = iterationSpeed;
 
-
+        period.totalhours          = numDays * 24;
         period.days                = numDays;
         period.hours               = numDays * 24;
         period.currentDay          = 1;
@@ -236,8 +252,8 @@
         //var numJobs                = 50; //setNumJobs(numDays);
         //var jobdata                = 
         period.numJobs             = 0;
-        period.jobs                = [];
-        period.releaseTimes        = []; //buildReleaseTimes(period.hours,jobdata);
+        period.jobs                = {};
+        period.releaseTimes        = {}; //buildReleaseTimes(period.hours,jobdata);
 
         return period;
 
@@ -256,10 +272,10 @@
       buildReleaseSchedule : function(jobs)
       {
         var releaseTimes = {};
-        jobs.forEach(function(job,index)
+        for (var index in jobs)     
         {
-          releaseTimes[job.releaseTime] = index;
-        });
+          releaseTimes[jobs[index].releaseTime] = index;
+        }
 
         return releaseTimes;
       },
