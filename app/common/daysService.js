@@ -4,6 +4,7 @@
   function daysService() {
 
     var hourSpeed = 10;
+    var iterationSpeed = 10;
     var rate = 125;
     var startupCapital = 0;
     var invoice_terms = [0,30];
@@ -124,11 +125,11 @@
 
       var options = ['small','medium','large'];
 
-      var num = Math.floor(Math.random() * 3);
+      var num = 1;//Math.floor(Math.random() * 3);
 
       var size          = options[num];
-      var hours         = getJobHours(size);
-      var handoff       = getHandoff(size);
+      var hours         = 1; //getJobHours(size);
+      var handoff       = 1; //getHandoff(size);
       var workstations  = getWorkstations(hours);
 
       job.size        = size;
@@ -195,8 +196,12 @@
       jobData.forEach(function(entry, index) 
       { 
           var num = randomIntFromInterval(1,numHours);
-
-          releaseTimes[num] = index;
+          /*
+          var release = {};
+          release.time = num;
+          release.jobIdx = index;
+          */
+          releaseTimes[index] = num;
       });
         
       return releaseTimes;
@@ -205,10 +210,16 @@
 
     return {
       
-      period : function(numDays)
+      period : function(numDays,numIterations)
       {
 
         var period = {};
+        
+        period.iterations          = numIterations;
+        period.curIteration        = 1;
+        period.iterationSpeed      = iterationSpeed;
+
+
         period.days                = numDays;
         period.hours               = numDays * 24;
         period.currentDay          = 1;
@@ -222,14 +233,40 @@
         period.hourTotalCount      = 0;
         period.workingHours        = [8,9,10,11,12,13,14,15,16];
 
-        var numJobs                = setNumJobs(numDays);
-        var jobdata                = buildJobs(numJobs);
-       
-        period.jobs                = jobdata;
-        period.releaseTimes        = buildReleaseTimes(period.hours,jobdata);
+        //var numJobs                = 50; //setNumJobs(numDays);
+        //var jobdata                = 
+        period.numJobs             = 0;
+        period.jobs                = [];
+        period.releaseTimes        = []; //buildReleaseTimes(period.hours,jobdata);
 
         return period;
 
+      },
+
+      getNumJobs : function(days)
+      {
+        return 50; //setNumJobs(days);
+      },
+
+      setJobs : function(numJobs)
+      {
+        return buildJobs(numJobs);
+      },
+
+      buildReleaseSchedule : function(jobs)
+      {
+        var releaseTimes = {};
+        jobs.forEach(function(job,index)
+        {
+          releaseTimes[job.releaseTime] = index;
+        });
+
+        return releaseTimes;
+      },
+
+      getReleaseTime : function(hours)
+      {
+        return randomIntFromInterval(1,hours);
       },
 
       getCost : function(hours)

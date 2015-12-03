@@ -16,7 +16,7 @@
       min = cost - 5000;
       max = cost + 5000;
 
-      return Math.floor(Math.random()*(max-min+1)+min);
+      return cost; //Math.floor(Math.random()*(max-min+1)+min);
 
     }
 

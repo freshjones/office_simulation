@@ -16,7 +16,6 @@
       'common.invoice',
       'common.cash',
       'common.chart',
-      'common.montecarlo',
       'chart.js',
       'chart'
     ])
@@ -32,20 +31,22 @@
       ProductionService,
       InvoiceService,
       CashService,
-      ChartService,
-      MontecarloService
+      ChartService
       )
     {
       
       var periodInterval;
       var backlogInterval;
-      var monteInterval;
+      var interationInterval;
 
-      var runFor          = 365;
+      var days          = 365;
+      var hours         = days * 24;
+      var iterations    = 2;
       
+      resetPeriod();
       resetSimulation();
 
-      $scope.monte        = MontecarloService.setMonte();
+      //$scope.monte        = MontecarloService.setMonte();
 
       $scope.showStartBtn = true;
 
@@ -69,96 +70,74 @@
 
       $scope.runSimMonteCarlo = function()
       {
-
+        resetPeriod();
         resetSimulation();
-
-        $scope.backlog            = BacklogService.setBacklog();
-        $scope.design             = DesignService.setDesign();
-        $scope.production         = ProductionService.setProduction();
-        $scope.complete           = CompleteService.setComplete();
-        $scope.invoiced           = InvoiceService.setInvoice();
-        $scope.paid               = CashService.setCash();
-
-        $scope.chart              = ChartService.setChart();
-        $scope.monte              = MontecarloService.setMonte();
-
-        var monte = $scope.monte.iterations;
-        var i,r;
-
-        monteInterval = $interval(runMonte, $scope.monte.speed);
-
+        interationInterval = $interval(runInterations, $scope.period.iterationSpeed);
       }
 
-      function runMonte()
+      function runInterations()
       {
 
-        if($scope.monte.iterations <= 0 )
+        if($scope.period.iterations <= 0 )
         {
             $scope.showStartBtn = true;
-            $interval.cancel(monteInterval);
+            $interval.cancel(interationInterval);
         } 
         else 
         {
+            $interval.cancel(periodInterval);
+            $scope.period.iterations -= 1;
+            $scope.period.curIteration += 1;
 
-            $scope.monte.iterations -= 1;
-            $scope.monte.curIteration += 1;
+            var numJobs = DaysService.getNumJobs(days);
 
-            resetSimulation();
+            var jobData = DaysService.setJobs(numJobs);
 
-            var i,test = $scope.period.hours;
-
-            for(i=0;i<=test;i++)
+            jobData.forEach(function(job, index) 
             {
-              startSimulation();
+              job.releaseTime = DaysService.getReleaseTime(hours);
+              $scope.period.jobs.push(job);
+            });
+            
+            //build release data
+            $scope.period.releaseTimes = DaysService.buildReleaseSchedule($scope.period.jobs);
+
+            var i;
+
+            for(i=0;i<=hours;i++)
+            {
+              runSimulation();
             }
 
         }
 
       }
 
-      function resetSimulation()
+      function resetPeriod()
       {
-        $scope.period       = DaysService.period(runFor);
-        //$scope.backlog      = BacklogService.setBacklog();
-        //$scope.design       = DesignService.setDesign();
-        //$scope.production   = ProductionService.setProduction();
-        //$scope.complete     = CompleteService.setComplete();
-        //$scope.invoiced     = InvoiceService.setInvoice();
-        //$scope.paid         = CashService.setCash();
+        $scope.period             = DaysService.period(days,iterations);
       }
 
-      function startSimulation()
+      function resetSimulation()
+      {
+        $scope.period             = DaysService.period(days,iterations);
+        $scope.backlog            = BacklogService.setBacklog();
+        $scope.design             = DesignService.setDesign();
+        $scope.production         = ProductionService.setProduction();
+        $scope.complete           = CompleteService.setComplete();
+        $scope.invoiced           = InvoiceService.setInvoice();
+        $scope.paid               = CashService.setCash();
+        $scope.chart              = ChartService.setChart();
+      }
+
+      function runSimulation()
         {
 
             //hide run button
             $scope.showStartBtn = false;
 
-            //get a backlog of work for the time period
-            if($scope.period.hours <= 0 )
-            { 
-              
-
-                $scope.monte.CumIncome = $scope.monte.CumIncome + $scope.paid.money;
-                $scope.monte.CumExpenses = $scope.monte.CumExpenses + $scope.paid.moneyOut;
-
-                $scope.monte.income = $scope.monte.CumIncome / $scope.monte.curIteration;
-                $scope.monte.expenses = $scope.monte.CumExpenses / $scope.monte.curIteration;
-
-                $scope.monte.margin = $scope.monte.income / $scope.monte.expenses;
-
-                $scope.monte.seed = $scope.paid.month;
-
-                $scope.chart.data = $scope.monte.monthData;
-
-                $scope.chart.cumulativedata[0][0] = $scope.monte.income;
-                $scope.chart.cumulativedata[1][0] = $scope.monte.expenses;
-
-                $scope.showStartBtn = true;
-                $interval.cancel(periodInterval);
-
-            } 
-            else 
-            {
+            
+            
 
               $scope.period.hourCounter += 1;
               $scope.period.monthCounter += 1;
@@ -180,7 +159,8 @@
               if($scope.period.monthCounter == 720)
               {
 
-                var moneyOut = Number(($scope.production.costs + $scope.design.costs + $scope.invoiced.costs).toFixed(0));
+                var moneyOut = 10000;
+                //Number(($scope.production.costs + $scope.design.costs + $scope.invoiced.costs).toFixed(0));
 
                 var randMoneyOut = InvoiceService.getMonthlyOpCosts(moneyOut);
 
@@ -197,10 +177,21 @@
                 var monthIn = $scope.paid.month;
 
                 $scope.chart.labels[monthIndex] = 'Month ' + $scope.period.currentMonth;
-                
-                //$scope.chart.data[0][monthIndex] = monthIn;
-                //$scope.chart.data[1][monthIndex] = monthOut;
 
+                if($scope.chart.data[0][monthIndex] == undefined)
+                {
+                  $scope.chart.data[0][monthIndex] = 0;
+                }
+
+                if($scope.chart.data[1][monthIndex] == undefined)
+                {
+                  $scope.chart.data[1][monthIndex] = 0;
+                }
+
+                $scope.chart.data[0][monthIndex] += monthIn;
+                $scope.chart.data[1][monthIndex] += monthOut;
+
+                /*
                 if($scope.monte.monthData[0][monthIndex] == undefined)
                 {
                   $scope.monte.monthData[0][monthIndex] = 0;
@@ -238,7 +229,7 @@
 
                 $scope.monte.monthData[0][monthIndex] = avgMonth;
                 $scope.monte.monthData[1][monthIndex] = avgMonthOut;
-                
+                */
                 $scope.period.monthCounter = 0;
                 $scope.period.monthTotalCounter += 1;
                 $scope.period.currentMonth += 1;
@@ -470,7 +461,7 @@
                   }
 
 
-              }
+              
 
 
             }
