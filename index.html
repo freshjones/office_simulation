@@ -13,76 +13,19 @@
 </head>
 <body ng-controller="MainCtrl">       
     
+    <div style="padding-bottom:50px;">
+    	<button ng-click="runSim()" ng-show="showStartBtn">Run Simulation</button>
+    </div>
+
     <div>
-    	<button ng-click="runSimMonteCarlo()" ng-show="showStartBtn">Run Simulation</button>
+    Current Iteration: {{curIteration}}<br>
+    Average Income: {{avgIncome}}<br>
+    Average Expense: {{avgExpense}}
     </div>
 
-    <div class="block">
-        <h1>Iterations</h1>
-        Total Iterations: {{period.iterations}}<br/>
-        Current Iteration: {{period.curIteration}}
-    </div>
-
-    <div class="block">
-        <h1>Duration</h1>
-        Total Days Available: {{period.days}} days<br/>
-        Total Hours: {{period.totalhours}} hours<br/>
-        Current Month: {{period.currentMonth}}<br/>
-        Current day: {{period.currentDay}}<br/>
-        Current Hour: {{period.currentHour}}<br/>
-        Prospective Jobs: {{period.numJobs}}
-    </div>
-
-    <div class="block">
-    	<h1>Projects Won</h1>
-    	{{backlog.jobCount}} Projects in Backlog
-    </div>
-    <div class="block" ng-controller="DesignController">
-    	<h1>Handoff to Creative</h1>
-    	{{design.jobCount}} Projects in Design<br/>
-        Design Costs: ${{design.cost}}
-    </div>
-
-    <div class="block" ng-controller="ProductionController">
-        <h1>Handoff to Production</h1>
-        {{production.jobCount}} Projects in Development<br/>
-        Production Costs: ${{production.cost}}
-    </div>
-
-    <div class="block" ng-controller="CompleteController">
-    	<h1>Completed</h1>
-    	{{complete.jobCount}} Projects Completed<br/>
-        Potential Earnings: ${{complete.potentialValue}}
-    </div>
-
-    <div class="block" >
-        <h1>Invoiced (Accrual)</h1>
-        {{invoiced.jobCount}} Projects Invoiced<br/>
-        Invoiced Earnings: $ {{invoiced.money}}
-    </div>
-    
-    <div class="block" >
-        <h1>Check Received (Cash)</h1>
-         In: $ {{paid.money}}<br/>
-         Out: $ {{paid.moneyOut}}
-    </div>
-
-
-    <div class="block" >
-        <h1>Cumulative: </h1>
-         In: $ {{monte.income}}<br/>
-         Out: $ {{monte.expenses}}<br/>
-         Margin: %{{monte.margin}}
-    </div>
-
-    
     <div class="block" style="position: absolute; top:50px; right:50px; width:800px; height:500px;" ng-controller="ChartController">
         <canvas id="bar" class="chart chart-bar" chart-data="chart.data" chart-labels="chart.labels" chart-legend="true" chart-series="chart.series"></canvas>
     </div>
     
-    <div class="block" style="position: absolute; top:550px; right:50px; width:800px; height:500px;" ng-controller="ChartController">
-        <canvas id="bar" class="chart chart-bar" chart-data="chart.cumulativedata" chart-labels="chart.cumulativelabels" chart-legend="true" chart-series="chart.series"></canvas>
-    </div>
-
 </body>
 </html>
