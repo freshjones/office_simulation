@@ -18,11 +18,22 @@
       )
     {
       
+      $scope.bob = 0;
+      $scope.sue = 0;
+
       var interationInterval;
 
       var iterations,curIteration,days,hours,rate,income,expense;
 
       var chart               = {};
+
+      var monthlyIncomeData   = {};
+      monthlyIncomeData.monthlyTotals   = [];
+      monthlyIncomeData.monthlyAverages = [];
+      
+      var monthlyExpenseData  = {};
+      monthlyExpenseData.monthlyTotals   = [];
+      monthlyExpenseData.monthlyAverages = [];
 
       chart.labels = [];
       chart.series = ['Income', 'Expenses'];
@@ -43,6 +54,9 @@
       var curMonth            = 0;
       var curDay              = 0;
       var curHour             = 0;
+      var workingHours         = [8,9,10,11,12,13,14,15];
+      var monthlyIncome       = 0;
+      var monthlyExpenses     = 0;
 
       $scope.showStartBtn     = true;
       
@@ -50,18 +64,21 @@
       //$scope.curMonth          = curMonth;
 
       $scope.avgIncome        = avgIncome;
-      $scope.avgExpense        = avgExpense;
+      $scope.avgIncomeMo      = avgIncome / 12;
 
+      $scope.avgExpense        = avgExpense;
+      $scope.avgExpenseMo      = avgExpense / 12;
+      
       $scope.runSim = function()
       {
         
-        iterations    = 2;
+        iterations    = 5;
         days          = 365;
 
         hours         = days * 24;
         curIteration  = 0;
-       
-        rate          = 100;
+
+        rate          = 125;
         totIncome     = 0;
         avgIncome     = 0;
         totExpense    = 0;
@@ -70,14 +87,21 @@
         counterMonth  = 0;
         counterDay    = 0;
 
+        monthlyIncomeData.monthlyTotals   = [];
+        monthlyIncomeData.monthlyAverages = [];
+      
+        monthlyExpenseData.monthlyTotals   = [];
+        monthlyExpenseData.monthlyAverages = [];
+
         //hide run button
         $scope.showStartBtn       = false;
         $scope.avgIncome          = avgIncome;
+        $scope.avgIncomeMo        = avgIncome/12;
         $scope.avgExpense         = avgExpense;
+        $scope.avgExpenseMo       = avgExpense / 12;
         $scope.curIteration       = curIteration;
         
-
-        interationInterval        = $interval(runInterations, 1000);
+        interationInterval        = $interval(runInterations, 10);
 
       }
 
@@ -95,10 +119,11 @@
           iterations      -= 1;
           curIteration    += 1;
           curMonth        = 0;
+          curDay          = 0;
           curHour         = 0;
+
           income          = 0;
           expense         = 0;
-          curMonth        = 0;
 
           counterMonth    = 0;
           counterDay      = 0;
@@ -108,20 +133,55 @@
              hourSimulation(i)
 
              counterMonth += 1;
-             
+             counterDay += 1;
+
+             if(counterDay==24)
+             {
+                counterDay = 0;
+
+                curDay += 1;
+
+             }
+
              if(counterMonth==730)
              {
-              counterMonth = 0;
-              curMonth += 1;
 
-              chart.data[0].push(income);
-              chart.data[1].push(expense);
-              
-              chart.labels.push('Month ' + curMonth );
+                if(monthlyIncomeData.monthlyTotals[curMonth] == undefined)
+                {
+                  monthlyIncomeData.monthlyTotals[curMonth] = 0;
+                }
 
-              console.log(chart);
-              //$scope.curMonth = curMonth;
+                if(monthlyExpenseData.monthlyTotals[curMonth] == undefined)
+                {
+                  monthlyExpenseData.monthlyTotals[curMonth] = 0;
+                }
 
+                if(monthlyIncomeData.monthlyAverages[curMonth] == undefined)
+                {
+                  monthlyIncomeData.monthlyAverages[curMonth] = 0;
+                }
+
+                if(monthlyExpenseData.monthlyAverages[curMonth] == undefined)
+                {
+                  monthlyExpenseData.monthlyAverages[curMonth] = 0;
+                }
+
+                monthlyIncomeData.monthlyTotals[curMonth] += monthlyIncome;
+                monthlyExpenseData.monthlyTotals[curMonth] += monthlyExpenses;
+
+                monthlyIncomeData.monthlyAverages[curMonth] = monthlyIncomeData.monthlyTotals[curMonth] / curIteration;
+                monthlyExpenseData.monthlyAverages[curMonth] = monthlyExpenseData.monthlyTotals[curMonth] / curIteration;
+
+                var label = curMonth + 1;
+                chart.labels[curMonth] = 'Month ' + label;
+                chart.data[0] = monthlyIncomeData.monthlyAverages;
+                chart.data[1] = monthlyExpenseData.monthlyAverages;
+
+                counterMonth = 0;
+                monthlyIncome = 0;
+                monthlyExpenses = 0;
+
+                curMonth += 1;
              }
 
           }
@@ -132,11 +192,18 @@
           totExpense += expense;
           avgExpense = totExpense/curIteration;
 
-          $scope.avgIncome        = avgIncome;
-          $scope.avgExpense       = avgExpense;
-          $scope.curIteration     = curIteration;
-          $scope.chart            = chart;
+          $scope.avgIncome          = avgIncome;
+          $scope.avgIncomeMo        = avgIncome/12;
+
+          $scope.avgExpense         = avgExpense;
+          $scope.avgExpenseMo       = avgExpense / 12;
+
+          $scope.curIteration       = curIteration;
+          $scope.chart              = chart;
          
+          $scope.bob = 4;
+          $scope.sue = 10000;
+
         }
 
       }
@@ -144,10 +211,20 @@
       function hourSimulation(hour)
       {
 
+
         curHour += 1;
-        
-        income += rate;
-        expense += 50;
+
+        if(workingHours.indexOf(counterDay+1) >= 0 )
+        {
+
+          income += rate;
+          monthlyIncome += rate;
+
+          expense += rate;
+          monthlyExpenses += rate;
+
+        }
+       
 
       }
 

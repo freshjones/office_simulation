@@ -20,11 +20,13 @@
     <div>
     Current Iteration: {{curIteration}}<br>
     Average Income: {{avgIncome}}<br>
-    Average Expense: {{avgExpense}}
+    Average Income per Mo: {{avgIncomeMo}}<br>
+    Average Expense: {{avgExpense}}<br>
+    Average Expense per Mo: {{avgExpenseMo}}<br>
     </div>
 
     <div class="block" style="position: absolute; top:50px; right:50px; width:800px; height:500px;" ng-controller="ChartController">
-        <canvas id="bar" class="chart chart-bar" chart-data="chart.data" chart-labels="chart.labels" chart-legend="true" chart-series="chart.series"></canvas>
+        <canvas id="bar" class="chart chart-bar" chart-data="chart.data" chart-labels="chart.labels" chart-legend="true" chart-series="chart.series" chart-options="{scaleIntegersOnly:true, scaleOverride:true, scaleSteps: bob, scaleStepWidth:sue, scaleStartValue:0}"></canvas>
     </div>
     
 </body>
