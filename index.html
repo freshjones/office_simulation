@@ -18,11 +18,17 @@
     </div>
 
     <div>
-    Current Iteration: {{curIteration}}<br>
-    Average Income: {{avgIncome}}<br>
-    Average Income per Mo: {{avgIncomeMo}}<br>
-    Average Expense: {{avgExpense}}<br>
-    Average Expense per Mo: {{avgExpenseMo}}<br>
+        <form name="form" class="css-form" novalidate>
+            Current Iteration: {{curIteration}}<br>
+            Average Income: {{avgIncome}}<br>
+            Average Income per Mo: {{avgIncomeMo}}<br>
+            Average Expense: {{avgExpense}}<br>
+            Average Expense per Mo: {{avgExpenseMo}}<br>
+            Rate: <input ng-model="rate" type="number" min="100" max="200" integer /><br/>
+            Profit/Year: {{profit}}<br/>
+            Profit/Month: {{profitMo}}<br/>
+            Gross Margin: {{grossMargin}}%<br/>
+        </form>
     </div>
 
     <div class="block" style="position: absolute; top:50px; right:50px; width:800px; height:500px;" ng-controller="ChartController">
