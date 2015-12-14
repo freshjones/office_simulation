@@ -19,12 +19,16 @@
 
     <div>
         <form name="form" class="css-form" novalidate>
+            
+            Iterations: <input ng-model="iterations" type="number" min="1" max="1000" integer /><br/>
+            Rate: <input ng-model="rate" type="number" min="100" max="200" integer /><br/>
+
             Current Iteration: {{curIteration}}<br>
             Average Income: {{avgIncome}}<br>
             Average Income per Mo: {{avgIncomeMo}}<br>
             Average Expense: {{avgExpense}}<br>
             Average Expense per Mo: {{avgExpenseMo}}<br>
-            Rate: <input ng-model="rate" type="number" min="100" max="200" integer /><br/>
+           
             Profit/Year: {{profit}}<br/>
             Profit/Month: {{profitMo}}<br/>
             Gross Margin: {{grossMargin}}%<br/>

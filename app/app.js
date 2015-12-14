@@ -71,6 +71,7 @@
       $scope.avgExpenseMo      = avgExpense / 12;
       
       $scope.rate              = 125;
+      $scope.iterations        = 5;
 
       $scope.profit             = 0;
       $scope.profitMo           = 0;
@@ -80,7 +81,7 @@
       $scope.runSim = function()
       {
         
-        iterations    = 5;
+        iterations    = $scope.iterations;
         days          = 360;
 
         hours         = days * 24;
