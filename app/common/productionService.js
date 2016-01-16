@@ -4,28 +4,8 @@
   function productionService() 
   {
 
-    var speed     = 5000;
-    var avgSalary = 45000;
-    var resources = 1;
-
     return {
       
-      setProduction: function()
-      {
-
-        var production = {};
-
-        production.jobs           = [];
-        production.jobCount       = 0;
-        production.speed          = speed;
-        production.costperhour    = (avgSalary / 365) / 24;
-        production.cost           = 0;
-        production.workers        = resources;
-        production.costs          = ((avgSalary / 365) * 30) * resources;
-
-        return production;
-
-      },
 
       doWork: function(hours, hoursWorked)
       {

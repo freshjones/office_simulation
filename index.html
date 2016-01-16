@@ -22,16 +22,23 @@
             
             Iterations: <input ng-model="iterations" type="number" min="1" max="1000" integer /><br/>
             Rate: <input ng-model="rate" type="number" min="100" max="200" integer /><br/>
+            Avg Jobs/Year: <input ng-model="jobs" type="number" integer /><br/>
+            Job Ratio(Small/Large): <input ng-model="jobratio" type="number" min="0" max="10" integer /><br/>
 
-            Current Iteration: {{curIteration}}<br>
-            Average Income: {{avgIncome}}<br>
-            Average Income per Mo: {{avgIncomeMo}}<br>
-            Average Expense: {{avgExpense}}<br>
-            Average Expense per Mo: {{avgExpenseMo}}<br>
+            Designers: <input ng-model="resources.designers" min="1" max="5" type="number" integer /><br/>
+            Programmers: <input ng-model="resources.engineers" min="1" max="5" type="number" integer /><br/><br/>
+
+            Current Iteration: {{curIteration}}<br><br>
+            Income/Year: {{avgIncome | currency : $ : 0}}<br>
+            Expense/Year: {{avgExpense | currency : $ : 0}}<br><br>
+            Jobs/Year: {{avgJobs}}<br><br>
+            Income/Month: {{avgIncomeMo | currency : $ : 0}}<br>
+            Expense/Month: {{avgExpenseMo | currency : $ : 0}}<br>
+            Jobs/Month: {{avgJobsMo}}<br><br>
            
-            Profit/Year: {{profit}}<br/>
-            Profit/Month: {{profitMo}}<br/>
-            Gross Margin: {{grossMargin}}%<br/>
+            Profit/Year: {{profit  | currency : $ : 0}}<br/>
+            Profit/Month: {{profitMo  | currency : $ : 0}}<br/>
+            Gross Margin: {{grossMargin  | number : 1 }}%<br/>
         </form>
     </div>
 
